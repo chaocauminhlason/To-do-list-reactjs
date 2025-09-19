@@ -1,0 +1,14 @@
+.Info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.TodoItem {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+.TodoListItem[data-completed="true"] .Info {
+    text-decoration: line-through;
+    color: gray;
+}
