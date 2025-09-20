@@ -12,3 +12,7 @@
     text-decoration: line-through;
     color: gray;
 }
+.Controls {
+    display: flex;
+    flex-wrap: nowrap;
+}
