@@ -31,7 +31,7 @@ export function TodoForm({ onCreate }) {
           {showAllFields ? "Hide" : "Show"} all fields
         </button>
       </h3>
-
+      
       <form className={styles.Form} onSubmit={handleSubmit}>
           <TodoFormFields showAllFields={showAllFields} />
 

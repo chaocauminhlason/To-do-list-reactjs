@@ -2,13 +2,32 @@ import { PRIORITIES, PRIORITY_DEFAULT } from '../../constants/priorities';
 import styles from './TodoListItem.module.css';
 import { TodoFormFields } from '../TodoFormFields/TodoFormFields';
 import { useState } from 'react';
-export function TodoListItem({ todo, onUpdate }) {
+export function TodoListItem({ todo, onUpdate, onDelete }) {
     const [isEditing, setIsEditing] = useState(false);
+    const [isRemove, setIsRemove] = useState(false);
     function handleComplete(event) {
         onUpdate(todo.id, { ...todo, completed: event.target.checked });
     }
+    const handleEdit = (event) => {
+        event.preventDefault();
+
+        const { elements } = event.target;
+
+    if (elements.name.value === "") return "";
+         setIsEditing(false);
+    onUpdate (todo.id, {
+        name: elements.name.value,
+        description: elements.description.value,
+        deadline: elements.deadline.value,
+        priority: elements.priority.value,
+        completed: todo.completed,
+     });
+    }
+    const handleRemove = () => {
+        onUpdate (todo.id, null);
+    }
     const editingTemplate = (
-        <form className={styles.Content} onReset={() => setIsEditing(false)}>
+        <form className={styles.Content} onReset={() => setIsEditing(false)} onSubmit={handleEdit} >
             <TodoFormFields todo={todo}/>
             <div className={styles.Controls}  >
 
@@ -41,6 +60,7 @@ export function TodoListItem({ todo, onUpdate }) {
                         </div>
                         <div className={styles.Controls} >
                             <button onClick={() => setIsEditing(true)} >✏️</button>
+                            <button onClick={() => onDelete(todo.id)} >🗑️</button>
                         </div>
                     </li>          
     )

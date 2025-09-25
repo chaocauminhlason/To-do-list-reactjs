@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TodoForm } from "./components/TodoForm/TodoForm";
 import styles from "./App.module.css";
 import { TodoList } from "./components/TodoList/TodoList";
+import { TodoFilters } from "./components/TodoFilters/TodoFilters";
 
 const TODOS_DEFAULT = [
   {
@@ -40,16 +41,27 @@ const TODOS_DEFAULT = [
 
 function App() {
   const [todos, setTodos] = useState(TODOS_DEFAULT);
-
+  const [filters, setFilters] = useState({});
   function handleCreate(newTodo) {
     setTodos((prevTodos) => [
       ...prevTodos,
       { id: `${prevTodos.length + 1}`, ...newTodo },
     ]);
   }
+  function handleRemove(id) {
+    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+  }
   function handleUpdate(id, newTodo) {
     setTodos((prevTodos) =>
       prevTodos.map((todo) => (todo.id === id ? newTodo : todo))
+    );
+  }
+  function filterTodos(todo) {
+    const { completed, priority } = filters;
+
+    return (
+      (completed === "" || todo.completed === completed) &&
+      (priority === "" || todo.priority === priority)
     );
   }
   return (
@@ -61,8 +73,8 @@ function App() {
 
       <div className={styles.AppContainer}>
         <TodoForm onCreate={handleCreate} />
-        {JSON.stringify(todos)}
-        <TodoList todos={todos} onUpdate={handleUpdate} />
+          <TodoFilters onFilter={setFilters}/>
+        <TodoList todos={todos.filter(filterTodos)} onUpdate={handleUpdate} onDelete={handleRemove} />
       </div>
       
     </div>
