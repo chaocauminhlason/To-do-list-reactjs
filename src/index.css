@@ -39,3 +39,10 @@ input[type="reset"]:hover,
 button:hover {
   background: lightgray;
 }
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: Salmon;
+  outline-color: Salmon;
+}
