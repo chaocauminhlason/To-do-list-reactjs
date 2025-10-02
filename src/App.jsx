@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+
 import { TodoForm } from "./components/TodoForm/TodoForm";
 import styles from "./App.module.css";
 import { TodoList } from "./components/TodoList/TodoList";
@@ -41,24 +41,82 @@ const TODOS_DEFAULT = [
 ];
 
 function App() {
-  const [todos, setTodos] = useState(TODOS_DEFAULT);
+  const [todos, setTodos] = useState([]);
   const [filters, setFilters] = useState({});
   
+  function fetchTodos() {
+    fetch(`${import.meta.env.VITE_MOCKAPI_BASE_URL}todos`, {
+      method: 'GET',
+      headers: {'content-type':'application/json'},
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error('Network error');
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Fetched todos:", data);
+      setTodos(data);
+    })
+    .catch((err) => {
+      console.error("Fetch error:", err);
+      setTodos([]); // hoặc dùng TODOS_DEFAULT để test
+    });
+}
 
-  function handleCreate(newTodo) {
-    setTodos((prevTodos) => [
-      ...prevTodos,
-      { id: `${prevTodos.length + 1}`, ...newTodo },
-    ]);
-  }
-  function handleRemove(id) {
-    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
-  }
   function handleUpdate(id, newTodo) {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) => (todo.id === id ? newTodo : todo))
-    );
-  }
+    fetch(`${import.meta.env.VITE_MOCKAPI_BASE_URL}todos/${id}`, {
+      method: 'PUT',
+      headers: {'content-type':'application/json'},
+      body: JSON.stringify(newTodo),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error('Network error');
+      return response.json();
+    })
+    .then(fetchTodos)}
+    
+    function handleRemove(id) {
+      const searchParams = new URLSearchParams(filters).toString();
+      fetch(`${import.meta.env.VITE_MOCKAPI_BASE_URL}todos/${id}?${searchParams}`, {
+        method: 'DELETE',
+        headers: {'content-type':'application/json'},
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Network error');
+        return response.json();
+      })
+      .then(fetchTodos)}
+      
+      function handleCreate(newTodo) {
+        fetch(`${import.meta.env.VITE_MOCKAPI_BASE_URL}todos`, {
+          method: 'POST',
+          headers: {'content-type':'application/json'},
+          body: JSON.stringify(newTodo),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error('Network error');
+          return response.json();
+        })
+        .then(fetchTodos)}
+
+  useEffect(() => {
+    fetchTodos();
+  }, [filters]);
+
+  // function handleCreate(newTodo) {
+  //   setTodos((prevTodos) => [
+  //     ...prevTodos,
+  //     { id: `${prevTodos.length + 1}`, ...newTodo },
+  //   ]);
+  // }
+  // function handleRemove(id) {
+  //   setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+  // }
+  // function handleUpdate(id, newTodo) {
+  //   setTodos((prevTodos) =>
+  //     prevTodos.map((todo) => (todo.id === id ? newTodo : todo))
+  //   );
+  // }
   function filterTodos(todo) {
     const { completed, priority } = filters;
 
@@ -67,6 +125,7 @@ function App() {
       (priority === "" || todo.priority === priority)
     );
   }
+  console.log("API URL:", import.meta.env.VITE_MOCKAPI_BASE_URL);
   return (
     <div className={styles.App}>
       <header className={styles.Header}>

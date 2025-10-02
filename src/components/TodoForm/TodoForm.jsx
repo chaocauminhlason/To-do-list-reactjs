@@ -14,7 +14,8 @@ export function TodoForm({ onCreate }) {
       description: "",
       deadline: "",
       priority: PRIORITY_DEFAULT,
-      completed: false,},
+      completed: false,
+    },
   });
 
   function handleCreate(data) {
