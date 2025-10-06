@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
 
 import { TodoForm } from "./components/TodoForm/TodoForm";
 import styles from "./App.module.css";
 import { TodoList } from "./components/TodoList/TodoList";
 import { TodoFilters } from "./components/TodoFilters/TodoFilters";
-import { api } from "./api";
+import { useTodos } from "./hooks/todo";
+
 const TODOS_DEFAULT = [
   {
     id: "1",
@@ -41,50 +41,7 @@ const TODOS_DEFAULT = [
 ];
 
 function App() {
-  const [todos, setTodos] = useState([]);
-  const [filters, setFilters] = useState({});
-
-  async function fetchTodos() {
-    try {
-      const data = await api.todos.getAll(filters);
-      setTodos(data);
-    }
-    catch (error) {
-      console.log("Error fetching todos, please try again later.");
-    }
-  }
-
-  async function handleUpdate(id, newTodo) {
-    try {
-    await api.todos.update(id, newTodo);
-    await fetchTodos();
-    } catch (error) {
-      console.log("Error updating todo, please try again later.");
-    }
-  }
-
-  async function handleRemove(id) {
-    try{
-      await api.todos.delete(id);
-      await fetchTodos();
-    }
-    catch (error) {
-      console.log("Error deleting todo, please try again later.");
-    }
-  }
-
-  async function handleCreate(newTodo) {
-    try {
-      await api.todos.create(newTodo);
-      await fetchTodos();
-    } catch (error) {
-      console.log("Error creating todo, please try again later.");
-    }
-  }
-
-  useEffect(() => {
-    fetchTodos();
-  }, [filters]);
+  const todos= useTodos();
 
   // function handleCreate(newTodo) {
   //   setTodos((prevTodos) => [
@@ -100,15 +57,8 @@ function App() {
   //     prevTodos.map((todo) => (todo.id === id ? newTodo : todo))
   //   );
   // }
-  function filterTodos(todo) {
-    const { completed, priority } = filters;
-
-    return (
-      (completed === "" || todo.completed === completed) &&
-      (priority === "" || todo.priority === priority)
-    );
-  }
-  console.log("API URL:", import.meta.env.VITE_MOCKAPI_BASE_URL);
+ 
+  
   return (
     <div className={styles.App}>
       <header className={styles.Header}>
@@ -117,12 +67,12 @@ function App() {
       </header>
 
       <div className={styles.AppContainer}>
-        <TodoForm onCreate={handleCreate} />
-        <TodoFilters onFilter={setFilters} />
+        <TodoForm onCreate={todos.create} />
+        <TodoFilters onFilter={todos.filter} />
         <TodoList
-          todos={todos}
-          onUpdate={handleUpdate}
-          onDelete={handleRemove}
+          todos={todos.data}
+          onUpdate={todos.update}
+          onDelete={todos.delete}
         />
       </div>
     </div>
