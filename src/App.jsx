@@ -4,7 +4,7 @@ import { TodoForm } from "./components/TodoForm/TodoForm";
 import styles from "./App.module.css";
 import { TodoList } from "./components/TodoList/TodoList";
 import { TodoFilters } from "./components/TodoFilters/TodoFilters";
-
+import { api } from "./api";
 const TODOS_DEFAULT = [
   {
     id: "1",
@@ -43,61 +43,44 @@ const TODOS_DEFAULT = [
 function App() {
   const [todos, setTodos] = useState([]);
   const [filters, setFilters] = useState({});
-  
-  function fetchTodos() {
-    fetch(`${import.meta.env.VITE_MOCKAPI_BASE_URL}todos`, {
-      method: 'GET',
-      headers: {'content-type':'application/json'},
-  })
-    .then((response) => {
-      if (!response.ok) throw new Error('Network error');
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Fetched todos:", data);
-      setTodos(data);
-    })
-    .catch((err) => {
-      console.error("Fetch error:", err);
-      setTodos([]); // hoặc dùng TODOS_DEFAULT để test
-    });
-}
 
-  function handleUpdate(id, newTodo) {
-    fetch(`${import.meta.env.VITE_MOCKAPI_BASE_URL}todos/${id}`, {
-      method: 'PUT',
-      headers: {'content-type':'application/json'},
-      body: JSON.stringify(newTodo),
-  })
-    .then((response) => {
-      if (!response.ok) throw new Error('Network error');
-      return response.json();
-    })
-    .then(fetchTodos)}
-    
-    function handleRemove(id) {
-      const searchParams = new URLSearchParams(filters).toString();
-      fetch(`${import.meta.env.VITE_MOCKAPI_BASE_URL}todos/${id}?${searchParams}`, {
-        method: 'DELETE',
-        headers: {'content-type':'application/json'},
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error('Network error');
-        return response.json();
-      })
-      .then(fetchTodos)}
-      
-      function handleCreate(newTodo) {
-        fetch(`${import.meta.env.VITE_MOCKAPI_BASE_URL}todos`, {
-          method: 'POST',
-          headers: {'content-type':'application/json'},
-          body: JSON.stringify(newTodo),
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error('Network error');
-          return response.json();
-        })
-        .then(fetchTodos)}
+  async function fetchTodos() {
+    try {
+      const data = await api.todos.getAll(filters);
+      setTodos(data);
+    }
+    catch (error) {
+      console.log("Error fetching todos, please try again later.");
+    }
+  }
+
+  async function handleUpdate(id, newTodo) {
+    try {
+    await api.todos.update(id, newTodo);
+    await fetchTodos();
+    } catch (error) {
+      console.log("Error updating todo, please try again later.");
+    }
+  }
+
+  async function handleRemove(id) {
+    try{
+      await api.todos.delete(id);
+      await fetchTodos();
+    }
+    catch (error) {
+      console.log("Error deleting todo, please try again later.");
+    }
+  }
+
+  async function handleCreate(newTodo) {
+    try {
+      await api.todos.create(newTodo);
+      await fetchTodos();
+    } catch (error) {
+      console.log("Error creating todo, please try again later.");
+    }
+  }
 
   useEffect(() => {
     fetchTodos();
@@ -135,10 +118,13 @@ function App() {
 
       <div className={styles.AppContainer}>
         <TodoForm onCreate={handleCreate} />
-          <TodoFilters onFilter={setFilters}/>
-        <TodoList todos={todos.filter(filterTodos)} onUpdate={handleUpdate} onDelete={handleRemove} />
+        <TodoFilters onFilter={setFilters} />
+        <TodoList
+          todos={todos}
+          onUpdate={handleUpdate}
+          onDelete={handleRemove}
+        />
       </div>
-      
     </div>
   );
 }
