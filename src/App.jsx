@@ -5,6 +5,7 @@ import { TodoList } from "./components/TodoList/TodoList";
 import { TodoFilters } from "./components/TodoFilters/TodoFilters";
 import { useTodos } from "./hooks/todo";
 import { Alert } from "./components/Alert/Alert";
+import { Loader } from "./components/Loader/Loader";
 
 const TODOS_DEFAULT = [
   {
@@ -68,6 +69,7 @@ function App() {
       </header>
 
       <div className={styles.AppContainer}>
+        {todos.isLoading && <Loader />}
         {!!todos.error.message &&
         <Alert type="error" message={todos.error.message} onClose={todos.error.clear} />
         }
