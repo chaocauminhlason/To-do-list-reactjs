@@ -4,6 +4,7 @@ import styles from "./App.module.css";
 import { TodoList } from "./components/TodoList/TodoList";
 import { TodoFilters } from "./components/TodoFilters/TodoFilters";
 import { useTodos } from "./hooks/todo";
+import { Alert } from "./components/Alert/Alert";
 
 const TODOS_DEFAULT = [
   {
@@ -67,6 +68,9 @@ function App() {
       </header>
 
       <div className={styles.AppContainer}>
+        {!!todos.error.message &&
+        <Alert type="error" message={todos.error.message} onClose={todos.error.clear} />
+        }
         <TodoForm onCreate={todos.create} />
         <TodoFilters onFilter={todos.filter} />
         <TodoList

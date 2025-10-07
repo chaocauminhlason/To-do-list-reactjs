@@ -11,7 +11,7 @@ export function useTodos() {
       setTodos(data);
     }
     catch (error) {
-      console.log("Error fetching todos, please try again later.");
+      setErrorMessage("Error fetching todos, please try again later.");
     }
   }
   
@@ -24,7 +24,7 @@ export function useTodos() {
     await api.todos.update(id, newTodo);
     await fetchTodos();
     } catch (error) {
-      console.log("Error updating todo, please try again later.");
+      setErrorMessage("Error updating todo, please try again later.");
     }
   }
 
@@ -34,7 +34,7 @@ export function useTodos() {
       await fetchTodos();
     }
     catch (error) {
-      console.log("Error deleting todo, please try again later.");
+      setErrorMessage("Error deleting todo, please try again later.");
     }
   }
 
@@ -43,7 +43,7 @@ export function useTodos() {
       await api.todos.create(newTodo);
       await fetchTodos();
     } catch (error) {
-      console.log("Error creating todo, please try again later.");
+      setErrorMessage("Error creating todo, please try again later.");
     }
   }
 
@@ -55,7 +55,7 @@ export function useTodos() {
     filter: setFilters,
     error: {
         message: errorMessage,
-        
+        clear: () => setErrorMessage()
     } 
 };
 }
